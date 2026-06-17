@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+.vscode
+*.iml
+**/target/
+**/node_modules/
+**/dist/
+**/build/
+.gemini/
+brain/
+scratch/

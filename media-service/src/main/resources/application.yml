@@ -1,0 +1,21 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: media-service
+  config:
+    import: "optional:configserver:http://config-server:8888"
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+
+cloudinary:
+  url: ${CLOUDINARY_URL:}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

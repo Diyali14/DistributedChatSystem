@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: "optional:configserver:http://config-server:8888"
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+        - id: chat-service
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/chats/**
+        - id: group-service
+          uri: lb://group-service
+          predicates:
+            - Path=/api/groups/**
+        - id: media-service
+          uri: lb://media-service
+          predicates:
+            - Path=/api/media/**
+        - id: chat-ws
+          uri: lb:ws://chat-service
+          predicates:
+            - Path=/ws/chat/**
+        - id: group-ws
+          uri: lb:ws://group-service
+          predicates:
+            - Path=/ws/group/**
+        - id: presence-ws
+          uri: lb:ws://presence-service
+          predicates:
+            - Path=/ws/presence/**

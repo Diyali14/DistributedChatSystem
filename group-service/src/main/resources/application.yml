@@ -1,0 +1,23 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: group-service
+  config:
+    import: "optional:configserver:http://config-server:8888"
+  datasource:
+    url: jdbc:postgresql://postgres:5432/chatsphere_group
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
