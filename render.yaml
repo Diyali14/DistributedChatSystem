@@ -1,17 +1,27 @@
-services:
+databases:
   # 1. POSTGRESQL DATABASE
-  - type: db
-    name: chatsphere-postgres
+  - name: chatsphere-postgres
     databaseName: chatsphere
     user: postgres
     plan: free
 
+services:
   # 2. REDIS CACHE & LOCKING
   - type: redis
     name: chatsphere-redis
     plan: free
 
-  # 3. CENTRAL CONFIG SERVER
+  # 3. RABBITMQ MESSAGE BROKER (Docker Image Runtime)
+  - type: web
+    name: chatsphere-rabbitmq
+    runtime: image
+    image:
+      url: docker.io/library/rabbitmq:3-management-alpine
+    plan: free
+    ports:
+      - port: 5672
+
+  # 4. CENTRAL CONFIG SERVER
   - type: web
     name: config-server
     env: docker
@@ -21,7 +31,7 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: native
 
-  # 4. DISCOVERY SERVER (EUREKA)
+  # 5. DISCOVERY SERVER (EUREKA)
   - type: web
     name: discovery-server
     env: docker
@@ -31,7 +41,7 @@ services:
       - key: CONFIG_SERVER_URL
         value: http://config-server:8888
 
-  # 5. API GATEWAY
+  # 6. API GATEWAY
   - type: web
     name: api-gateway
     env: docker
@@ -39,8 +49,13 @@ services:
     dockerfilePath: api-gateway/Dockerfile
     ports:
       - port: 8080
+    envVars:
+      - key: SPRING_REDIS_HOST
+        value: chatsphere-redis
+      - key: SPRING_DATA_REDIS_HOST
+        value: chatsphere-redis
 
-  # 6. AUTHENTICATION SERVICE
+  # 7. AUTHENTICATION SERVICE
   - type: web
     name: auth-service
     env: docker
@@ -50,9 +65,31 @@ services:
       - port: 8081
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://chatsphere-postgres:5432/chatsphere
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - key: DB_HOST
+        fromDatabase:
+          name: chatsphere-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chatsphere-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: database
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: chatsphere-postgres
+          property: password
+      - key: SPRING_RABBITMQ_HOST
+        value: chatsphere-rabbitmq
 
-  # 7. USER PROFILE SERVICE
+  # 8. USER PROFILE SERVICE
   - type: web
     name: user-service
     env: docker
@@ -62,9 +99,29 @@ services:
       - port: 8082
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://chatsphere-postgres:5432/chatsphere
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - key: DB_HOST
+        fromDatabase:
+          name: chatsphere-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chatsphere-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: database
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: chatsphere-postgres
+          property: password
 
-  # 8. CHAT MESSAGE SERVICE
+  # 9. CHAT MESSAGE SERVICE
   - type: web
     name: chat-service
     env: docker
@@ -74,11 +131,35 @@ services:
       - port: 8083
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://chatsphere-postgres:5432/chatsphere
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - key: DB_HOST
+        fromDatabase:
+          name: chatsphere-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chatsphere-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: database
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: chatsphere-postgres
+          property: password
       - key: SPRING_REDIS_HOST
         value: chatsphere-redis
+      - key: SPRING_DATA_REDIS_HOST
+        value: chatsphere-redis
+      - key: SPRING_RABBITMQ_HOST
+        value: chatsphere-rabbitmq
 
-  # 9. GROUP COLLABORATION SERVICE
+  # 10. GROUP COLLABORATION SERVICE
   - type: web
     name: group-service
     env: docker
@@ -88,11 +169,35 @@ services:
       - port: 8084
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://chatsphere-postgres:5432/chatsphere
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - key: DB_HOST
+        fromDatabase:
+          name: chatsphere-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chatsphere-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: database
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: chatsphere-postgres
+          property: password
       - key: SPRING_REDIS_HOST
         value: chatsphere-redis
+      - key: SPRING_DATA_REDIS_HOST
+        value: chatsphere-redis
+      - key: SPRING_RABBITMQ_HOST
+        value: chatsphere-rabbitmq
 
-  # 10. MEDIA SERVICE
+  # 11. MEDIA SERVICE
   - type: web
     name: media-service
     env: docker
@@ -101,7 +206,7 @@ services:
     ports:
       - port: 8085
 
-  # 11. PRESENCE TRACKING SERVICE
+  # 12. PRESENCE TRACKING SERVICE
   - type: web
     name: presence-service
     env: docker
@@ -112,8 +217,10 @@ services:
     envVars:
       - key: SPRING_REDIS_HOST
         value: chatsphere-redis
+      - key: SPRING_DATA_REDIS_HOST
+        value: chatsphere-redis
 
-  # 12. ASYNCHRONOUS NOTIFICATION SERVICE
+  # 13. ASYNCHRONOUS NOTIFICATION SERVICE
   - type: web
     name: notification-service
     env: docker
@@ -123,9 +230,31 @@ services:
       - port: 8087
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://chatsphere-postgres:5432/chatsphere
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - key: DB_HOST
+        fromDatabase:
+          name: chatsphere-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chatsphere-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: database
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: chatsphere-postgres
+          property: password
+      - key: SPRING_RABBITMQ_HOST
+        value: chatsphere-rabbitmq
 
-  # 13. REAL-TIME ANALYTICS SERVICE
+  # 14. REAL-TIME ANALYTICS SERVICE
   - type: web
     name: analytics-service
     env: docker
@@ -136,8 +265,12 @@ services:
     envVars:
       - key: SPRING_REDIS_HOST
         value: chatsphere-redis
+      - key: SPRING_DATA_REDIS_HOST
+        value: chatsphere-redis
+      - key: SPRING_RABBITMQ_HOST
+        value: chatsphere-rabbitmq
 
-  # 14. COMPLIANCE AUDIT SERVICE
+  # 15. COMPLIANCE AUDIT SERVICE
   - type: web
     name: audit-service
     env: docker
@@ -147,9 +280,31 @@ services:
       - port: 8089
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://chatsphere-postgres:5432/chatsphere
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - key: DB_HOST
+        fromDatabase:
+          name: chatsphere-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chatsphere-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: database
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: chatsphere-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: chatsphere-postgres
+          property: password
+      - key: SPRING_RABBITMQ_HOST
+        value: chatsphere-rabbitmq
 
-  # 15. REACT FRONTEND STATIC SITE
+  # 16. REACT FRONTEND STATIC SITE
   - type: web
     name: frontend
     env: static
