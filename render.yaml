@@ -18,8 +18,7 @@ services:
     image:
       url: docker.io/library/rabbitmq:3-management-alpine
     plan: free
-    ports:
-      - port: 5672
+    port: 5672
 
   # 4. CENTRAL CONFIG SERVER
   - type: web
@@ -27,6 +26,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: config-server/Dockerfile
+    port: 8888
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: native
@@ -37,6 +37,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: discovery-server/Dockerfile
+    port: 8761
     envVars:
       - key: CONFIG_SERVER_URL
         value: http://config-server:8888
@@ -47,8 +48,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: api-gateway/Dockerfile
-    ports:
-      - port: 8080
+    port: 8080
     envVars:
       - key: SPRING_REDIS_HOST
         value: chatsphere-redis
@@ -61,8 +61,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: auth-service/Dockerfile
-    ports:
-      - port: 8081
+    port: 8081
     envVars:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -95,8 +94,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: user-service/Dockerfile
-    ports:
-      - port: 8082
+    port: 8082
     envVars:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -127,8 +125,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: chat-service/Dockerfile
-    ports:
-      - port: 8083
+    port: 8083
     envVars:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -165,8 +162,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: group-service/Dockerfile
-    ports:
-      - port: 8084
+    port: 8084
     envVars:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -203,8 +199,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: media-service/Dockerfile
-    ports:
-      - port: 8085
+    port: 8085
 
   # 12. PRESENCE TRACKING SERVICE
   - type: web
@@ -212,8 +207,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: presence-service/Dockerfile
-    ports:
-      - port: 8086
+    port: 8086
     envVars:
       - key: SPRING_REDIS_HOST
         value: chatsphere-redis
@@ -226,8 +220,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: notification-service/Dockerfile
-    ports:
-      - port: 8087
+    port: 8087
     envVars:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -260,8 +253,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: analytics-service/Dockerfile
-    ports:
-      - port: 8088
+    port: 8088
     envVars:
       - key: SPRING_REDIS_HOST
         value: chatsphere-redis
@@ -276,8 +268,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: audit-service/Dockerfile
-    ports:
-      - port: 8089
+    port: 8089
     envVars:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
